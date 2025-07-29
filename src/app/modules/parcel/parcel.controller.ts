@@ -9,7 +9,7 @@ export const createParcel = catchAsync(async (req: Request, res: Response) => {
   const senderId = "";
   const parcelData = req.body;
 
-  const parcel = await ParcelService.createParcel({ ...parcelData, sender: senderId });
+  const parcel = await ParcelService.createParcel( parcelData, senderId );
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
