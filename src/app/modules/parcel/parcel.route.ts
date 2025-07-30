@@ -1,17 +1,18 @@
-// import { Router } from "express";
-// import { Role } from "../user/user.interface";
-// import { createParcelZodSchema, updateParcelStatusZodSchema } from "./parcel.validation";
-// import { checkAuth } from "../../middlewares/checkAuth";
-// import { validateRequest } from "../../middlewares/validateRequest";
+import { Router } from "express";
+import { Role } from "../user/user.interface";
+import { createParcelZodSchema } from "./parcel.validation";
+import { checkAuth } from "../../middlewares/checkAuth";
+import { validateRequest } from "../../middlewares/validateRequest";
+import { ParcelController } from "./parcel.controller";
 
-// const router = Router();
+const router = Router();
 
-// router.post(
-//   "/create",
-//   checkAuth(Role.SENDER),
-//   validateRequest(createParcelZodSchema),
-//   ParcelController.createParcel
-// );
+router.post(
+  "/create",
+  checkAuth(...Object.values(Role)),
+  validateRequest(createParcelZodSchema),
+  ParcelController.createParcel
+);
 
 // router.get("/sender", checkAuth(Role.SENDER), ParcelController.getSenderParcels);
 // router.get("/receiver", checkAuth(Role.RECEIVER), ParcelController.getReceiverParcels);
@@ -24,4 +25,4 @@
 //   ParcelController.updateParcelStatus
 // );
 
-// export const ParcelRoutes = router;
+export const ParcelRoutes = router;

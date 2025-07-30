@@ -3,13 +3,14 @@ import httpStatus from "http-status-codes";
 import { catchAsync } from '../../utils/catchAsync';
 import { ParcelService } from './parcel.service';
 import { sendResponse } from '../../utils/sendResponse';
+import { JwtPayload } from 'jsonwebtoken';
 
 // Create a new parcel (Sender only)
 export const createParcel = catchAsync(async (req: Request, res: Response) => {
-  const senderId = "";
+ const decodeToken = req.user as JwtPayload
   const parcelData = req.body;
-
-  const parcel = await ParcelService.createParcel( parcelData, senderId );
+// console.log(decodeToken)
+  const parcel = await ParcelService.createParcel(parcelData, decodeToken.userId);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -18,3 +19,8 @@ export const createParcel = catchAsync(async (req: Request, res: Response) => {
     data: parcel,
   });
 });
+
+export const ParcelController = {
+    createParcel,
+    
+}
