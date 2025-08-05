@@ -4,12 +4,14 @@ import { catchAsync } from '../../utils/catchAsync';
 import { ParcelService } from './parcel.service';
 import { sendResponse } from '../../utils/sendResponse';
 import { JwtPayload } from 'jsonwebtoken';
+import { Types } from 'mongoose';
+import { ParcelStatus } from './parcel.interface';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const createParcel = catchAsync(async (req: Request, res: Response,  next: NextFunction) => {
- const decodeToken = req.user as JwtPayload
+export const createParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const decodeToken = req.user as JwtPayload
   const parcelData = req.body;
-// console.log(decodeToken)
+  // console.log(decodeToken)
   const parcel = await ParcelService.createParcel(parcelData, decodeToken.userId);
 
   sendResponse(res, {
@@ -21,62 +23,84 @@ export const createParcel = catchAsync(async (req: Request, res: Response,  next
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getSenderParcels = catchAsync(async (req: Request, res: Response,  next: NextFunction) => {
-  const decodeToken = req.user as JwtPayload  
+const getSenderParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const decodeToken = req.user as JwtPayload
   const result = await ParcelService.getParcelsBySender(decodeToken.userId);
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.CREATED,
-        message: "Parcel Retrieved Successfully By Sender",
-        data: result.data
-    })
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Parcel Retrieved Successfully By Sender",
+    data: result.data
+  })
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getReceiverParcels = catchAsync(async (req: Request, res: Response,  next: NextFunction) => {
-  const decodeToken = req.user as JwtPayload  
+const getReceiverParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const decodeToken = req.user as JwtPayload
   const result = await ParcelService.getParcelsByReceiver(decodeToken.userId);
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.CREATED,
-        message: "Parcel Retrieved Successfully By Receiver",
-        data: result.data
-    })
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Parcel Retrieved Successfully By Receiver",
+    data: result.data
+  })
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const cancelParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const parcelId = req.params.id;
-  const decodeToken = req.user as JwtPayload  
+  // console.log(parcelId)
+  const decodeToken = req.user as JwtPayload
   const result = await ParcelService.cancelParcel(parcelId, decodeToken.userId);
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.CREATED,
-        message: "Parcel Cancel Successfully",
-        data: result.data
-    })
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Parcel Cancel Successfully",
+    data: result.data
+  })
 })
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const updateParcelStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { status, location, note } = req.body;
   const parcelId = req.params.id;
-  const decodeToken = req.user as JwtPayload  
-  const result = await ParcelService.cancelParcel(parcelId, decodeToken.userId);
+  const decodeToken = req.user as JwtPayload
+  const updatedBy = new Types.ObjectId(decodeToken._id);
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.CREATED,
-        message: "Parcel Cancel Successfully",
-        data: result.data
-    })
+  const result = await ParcelService.updateParcelStatus(
+    parcelId,
+    status as ParcelStatus,
+    updatedBy,
+    location,
+    note
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Parcel Cancel Successfully",
+    data: result.data
+  })
 })
+export const getParcelById = catchAsync(async (req: Request, res: Response) => {
+  const parcelId = req.params.id;
 
+  const parcel = await ParcelService.getParcelById(parcelId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Parcel details retrieved',
+    data: parcel,
+  });
+});
 export const ParcelController = {
-    createParcel,
-    getSenderParcels,
-    getReceiverParcels,
-    cancelParcel,
-    updateParcelStatus
+  createParcel,
+  getSenderParcels,
+  getReceiverParcels,
+  getParcelById,
+  cancelParcel,
+  updateParcelStatus
 }

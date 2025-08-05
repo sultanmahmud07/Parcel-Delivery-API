@@ -23,7 +23,7 @@ const userSchema = new Schema<IUser>({
   role: {
     type: String,
     enum: Object.values(Role),
-    default: Role.USER
+    default: Role.SENDER
   },
   auths: [authProviderSchema]
 }, {

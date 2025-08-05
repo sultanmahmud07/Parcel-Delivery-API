@@ -25,15 +25,21 @@ const createParcel = async (data: Partial<IParcel>, userId: string) => {
 };
 
 const getParcelsBySender = async (senderId: string) => {
+  // console.log("Sender Id:", senderId)
   const parcel = await Parcel.find({ sender: senderId });
   return {
     data: parcel
   }
 };
-
 const getParcelsByReceiver = async (receiverId: string) => {
-  const parcel =  await Parcel.find({ receiver: receiverId });
-   return {
+  const parcel = await Parcel.find({ receiver: receiverId });
+  return {
+    data: parcel
+  }
+};
+const getParcelById = async (parcelId: string) => {
+  const parcel = await Parcel.find({ _id: parcelId });
+  return {
     data: parcel
   }
 };
@@ -82,6 +88,7 @@ export const ParcelService = {
   createParcel,
   getParcelsBySender,
   getParcelsByReceiver,
+  getParcelById,
   updateParcelStatus,
   cancelParcel
 };

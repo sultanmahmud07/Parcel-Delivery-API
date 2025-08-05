@@ -16,6 +16,7 @@ router.post(
 
 router.get("/sender", checkAuth(Role.SENDER), ParcelController.getSenderParcels);
 router.get("/receiver", checkAuth(Role.RECEIVER), ParcelController.getReceiverParcels);
+router.get("/:id", checkAuth(...Object.values(Role)), ParcelController.getParcelById);
 
 router.patch("/cancel/:id", checkAuth(Role.SENDER), ParcelController.cancelParcel);
 router.patch(
