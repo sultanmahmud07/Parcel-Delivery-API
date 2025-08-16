@@ -102,12 +102,12 @@ const decodeToken = req.user as JwtPayload
 })
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const parcelBlockAndUnblock = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const { isBlocked, location, note } = req.body;
-  const parcelId = req.params.id;
-  const decodeToken = req.user as JwtPayload
-  const updatedBy = new Types.ObjectId(decodeToken._id);
+   const { isBlocked, location, note } = req.body;
+  const { id: parcelId } = req.params;
+  const decoded = req.user as JwtPayload;
+  const updatedBy = new Types.ObjectId(decoded._id);
 
-  const result = await ParcelService.updateParcelStatus(
+  const result = await ParcelService.parcelBlockAndUnblock(
     parcelId,
     isBlocked,
     updatedBy,
@@ -117,8 +117,23 @@ const parcelBlockAndUnblock = catchAsync(async (req: Request, res: Response, nex
 
   sendResponse(res, {
     success: true,
+    statusCode: httpStatus.OK,
+    message: `Parcel ${isBlocked ? "blocked" : "unblocked"} successfully`,
+    data: result,
+  });
+})
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const assignDeliveryPersonnel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+   const { parcelId } = req.params;
+    const { personnelId } = req.body;
+
+  const result = await ParcelService.assignDeliveryPersonnel(parcelId, personnelId);
+
+  sendResponse(res, {
+    success: true,
     statusCode: httpStatus.CREATED,
-    message:  `Parcel ${isBlocked ? "blocked" : "unblocked"} successfully`,
+    message: "Delivery personnel assigned successfully",
     data: result.data
   })
 })
@@ -166,5 +181,6 @@ export const ParcelController = {
   cancelParcel,
   deliveryParcelByReceiver,
   updateParcelStatus,
+  assignDeliveryPersonnel,
   parcelBlockAndUnblock
 }

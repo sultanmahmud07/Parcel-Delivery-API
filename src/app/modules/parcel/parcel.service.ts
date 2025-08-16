@@ -82,25 +82,45 @@ const updateParcelStatus = async (parcelId: string, status: ParcelStatus, update
   }
 };
 
-const parcelBlockAndUnblock = async (parcelId: string, isBlocked : boolean, updatedBy: Types.ObjectId, location?: string, note?: string) => {
-  const parcel = await Parcel.findById(parcelId);
-  if (!parcel) throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+const assignDeliveryPersonnel = async (parcelId: string, personnelId: string) => {
+    const parcel = await Parcel.findByIdAndUpdate(
+      parcelId,
+      { deliveryPersonnel: personnelId },
+      { new: true }
+    ).populate("deliveryPersonnel", "name email");
 
-  parcel.isBlocked = isBlocked || false;
-  const status = isBlocked ? "BLOCKED" : "UNBLOCKED";
-  parcel.statusLogs.push({
-    status,
-    updatedBy,
-    location,
-    note,
-    timestamp: new Date()
-  });
+    if (!parcel) throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
 
   await parcel.save();
   return {
     data: parcel
   }
 };
+const parcelBlockAndUnblock = async (
+  parcelId: string,
+  isBlocked: boolean,
+  updatedBy: Types.ObjectId,
+  location?: string,
+  note?: string
+) => {
+  const parcel = await Parcel.findById(parcelId);
+  if (!parcel) throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+  
+  parcel.isBlocked = isBlocked;
+
+  parcel.statusLogs.push({
+    status: isBlocked ? "BLOCKED" : "UNBLOCKED",
+    updatedBy,
+    location,
+    note,
+    timestamp: new Date(),
+  });
+
+  await parcel.save();
+
+  return parcel; // return directly
+};
+
 
 const cancelParcel = async (parcelId: string, senderId: Types.ObjectId) => {
   const parcel = await Parcel.findOne({ _id: parcelId, sender: senderId });
@@ -153,5 +173,6 @@ export const ParcelService = {
   updateParcelStatus,
   parcelBlockAndUnblock,
   cancelParcel,
-  deliveryParcelByReceiver
+  deliveryParcelByReceiver,
+  assignDeliveryPersonnel
 };
