@@ -31,8 +31,27 @@ const getParcelsBySender = async (senderId: string) => {
     data: parcel
   }
 };
+const getParcelsByAdmin = async () => {
+ const parcels = await Parcel.find({});
+     const totalParcels = await Parcel.countDocuments();
+     return {
+         data: parcels,
+         meta: {
+             total: totalParcels
+         }
+     }
+};
 const getParcelsByReceiver = async (receiverId: string) => {
   const parcel = await Parcel.find({ receiver: receiverId });
+  return {
+    data: parcel
+  }
+};
+const getDeliveryHistory = async (receiverId: string) => {
+  const parcel = await Parcel.find({
+      receiver: receiverId,
+      status: "DELIVERED",
+    }).populate("sender", "name email");
   return {
     data: parcel
   }
@@ -83,12 +102,35 @@ const cancelParcel = async (parcelId: string, senderId: Types.ObjectId) => {
     data: parcel
   };
 };
+const deliveryParcelByReceiver = async (parcelId: string, receiverId: Types.ObjectId) => {
+  const parcel = await Parcel.findOne({ _id: parcelId, receiver: receiverId });
+
+  if (!parcel) throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+  if (["DELIVERED"].includes(parcel.status)) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Parcel already delivered");
+  }
+
+  parcel.status = "DELIVERED";
+  parcel.statusLogs.push({
+    status: "DELIVERED",
+    updatedBy: receiverId,
+    timestamp: new Date()
+  });
+
+  await parcel.save();
+  return {
+    data: parcel
+  };
+};
 
 export const ParcelService = {
   createParcel,
   getParcelsBySender,
   getParcelsByReceiver,
   getParcelById,
+  getParcelsByAdmin,
+  getDeliveryHistory,
   updateParcelStatus,
-  cancelParcel
+  cancelParcel,
+  deliveryParcelByReceiver
 };

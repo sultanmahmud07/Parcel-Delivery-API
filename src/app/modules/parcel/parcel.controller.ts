@@ -23,6 +23,18 @@ export const createParcel = catchAsync(async (req: Request, res: Response, next:
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+const getParcelsByAdmin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const result = await ParcelService.getParcelsByAdmin();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Parcel Retrieved Successfully By Admin",
+    data: result.data,
+    meta: result.meta
+  })
+})
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getSenderParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const decodeToken = req.user as JwtPayload
   const result = await ParcelService.getParcelsBySender(decodeToken.userId);
@@ -59,6 +71,32 @@ const cancelParcel = catchAsync(async (req: Request, res: Response, next: NextFu
     success: true,
     statusCode: httpStatus.CREATED,
     message: "Parcel Cancel Successfully",
+    data: result.data
+  })
+})
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const deliveryParcelByReceiver = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const parcelId = req.params.id;
+  // console.log(parcelId)
+  const decodeToken = req.user as JwtPayload
+  const result = await ParcelService.deliveryParcelByReceiver(parcelId, decodeToken.userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Parcel Delivery Successfully",
+    data: result.data
+  })
+})
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const getDeliveryHistory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const decodeToken = req.user as JwtPayload
+  const result = await ParcelService.getDeliveryHistory(decodeToken.userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Delivery history retrieved successfully",
     data: result.data
   })
 })
@@ -100,7 +138,10 @@ export const ParcelController = {
   createParcel,
   getSenderParcels,
   getReceiverParcels,
+  getParcelsByAdmin,
   getParcelById,
+  getDeliveryHistory,
   cancelParcel,
+  deliveryParcelByReceiver,
   updateParcelStatus
 }
