@@ -22,6 +22,7 @@ router.get("/:id", checkAuth(...Object.values(Role)), ParcelController.getParcel
 
 router.patch("/cancel/:id", checkAuth(Role.SENDER), ParcelController.cancelParcel);
 router.patch("/delivery/:id", checkAuth(Role.RECEIVER), ParcelController.deliveryParcelByReceiver);
+router.patch("/block/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ParcelController.parcelBlockAndUnblock);
 router.patch(
   "/status/:id",
   checkAuth(Role.ADMIN, Role.SUPER_ADMIN),

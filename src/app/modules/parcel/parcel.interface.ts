@@ -1,12 +1,14 @@
 import { Types } from "mongoose";
 
-export type ParcelStatus = 
+export type ParcelStatus =
   | "REQUESTED"
   | "APPROVED"
   | "DISPATCHED"
   | "IN_TRANSIT"
   | "DELIVERED"
-  | "CANCELED";
+  | "CANCELED"
+  | "BLOCKED"
+  | "UNBLOCKED";
 
 export interface IStatusLog {
   status: ParcelStatus;

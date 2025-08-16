@@ -15,7 +15,9 @@ export const updateParcelStatusZodSchema = z.object({
     "DISPATCHED",
     "IN_TRANSIT",
     "DELIVERED",
-    "CANCELED"
+    "CANCELED",
+    "BLOCKED",
+    "UNBLOCKED"
   ]),
   location: z.string().optional(),
   note: z.string().optional()

@@ -20,7 +20,7 @@ const parcelSchema = new Schema<IParcel>({
   deliveryDate: { type: Date },
   status: {
     type: String,
-    enum: ["REQUESTED", "APPROVED", "DISPATCHED", "IN_TRANSIT", "DELIVERED", "CANCELED"],
+    enum: ["REQUESTED", "APPROVED", "DISPATCHED", "IN_TRANSIT", "DELIVERED", "CANCELED", "BLOCKED", "UNBLOCKED"],
     default: "REQUESTED"
   },
   isBlocked: { type: Boolean, default: false },

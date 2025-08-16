@@ -101,6 +101,28 @@ const decodeToken = req.user as JwtPayload
   })
 })
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+const parcelBlockAndUnblock = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { isBlocked, location, note } = req.body;
+  const parcelId = req.params.id;
+  const decodeToken = req.user as JwtPayload
+  const updatedBy = new Types.ObjectId(decodeToken._id);
+
+  const result = await ParcelService.updateParcelStatus(
+    parcelId,
+    isBlocked,
+    updatedBy,
+    location,
+    note
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message:  `Parcel ${isBlocked ? "blocked" : "unblocked"} successfully`,
+    data: result.data
+  })
+})
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const updateParcelStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { status, location, note } = req.body;
   const parcelId = req.params.id;
@@ -143,5 +165,6 @@ export const ParcelController = {
   getDeliveryHistory,
   cancelParcel,
   deliveryParcelByReceiver,
-  updateParcelStatus
+  updateParcelStatus,
+  parcelBlockAndUnblock
 }

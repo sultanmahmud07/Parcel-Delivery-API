@@ -82,6 +82,26 @@ const updateParcelStatus = async (parcelId: string, status: ParcelStatus, update
   }
 };
 
+const parcelBlockAndUnblock = async (parcelId: string, isBlocked : boolean, updatedBy: Types.ObjectId, location?: string, note?: string) => {
+  const parcel = await Parcel.findById(parcelId);
+  if (!parcel) throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+
+  parcel.isBlocked = isBlocked || false;
+  const status = isBlocked ? "BLOCKED" : "UNBLOCKED";
+  parcel.statusLogs.push({
+    status,
+    updatedBy,
+    location,
+    note,
+    timestamp: new Date()
+  });
+
+  await parcel.save();
+  return {
+    data: parcel
+  }
+};
+
 const cancelParcel = async (parcelId: string, senderId: Types.ObjectId) => {
   const parcel = await Parcel.findOne({ _id: parcelId, sender: senderId });
 
@@ -131,6 +151,7 @@ export const ParcelService = {
   getParcelsByAdmin,
   getDeliveryHistory,
   updateParcelStatus,
+  parcelBlockAndUnblock,
   cancelParcel,
   deliveryParcelByReceiver
 };
