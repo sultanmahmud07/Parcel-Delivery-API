@@ -27,7 +27,7 @@ The project is built using **Node.js, Express, TypeScript, and MongoDB**, ensuri
   - Block/unblock parcels with status logs  
 - 👤 **User Management**
   - Registration and login (with roles)
-  - Block/unblock users  
+  - Block/unblock users  (only admin/super-admin)
 - 📊 **Parcel Status Logs** (history of updates and activities)
 - 📝 **Delivery Confirmation & History for Receivers**
 - ⚡ **JWT Authentication & Authorization**
@@ -37,10 +37,10 @@ The project is built using **Node.js, Express, TypeScript, and MongoDB**, ensuri
 ## 🛠️ Tech Stack
 
 - **Backend:** Node.js, Express.js, TypeScript  
-- **Database:** MongoDB + Mongoose ODM  
+- **Database:** MongoDB + Mongoose  
 - **Authentication:** JWT (JSON Web Token)  
 - **Error Handling:** Custom `AppError` with global error middleware  
-- **Validation:** Zod / Joi (for request validation)  
+- **Validation:** Zod (for request validation)  
 
 ---
 
@@ -49,8 +49,8 @@ The project is built using **Node.js, Express, TypeScript, and MongoDB**, ensuri
 ### 🔑 Auth
 | Method | Endpoint         | Description                  |
 |--------|------------------|------------------------------|
-| POST   | `/api/auth/register` | Register a new user (sender/receiver) |
-| POST   | `/api/auth/login`    | Login user & get token |
+| POST   | `/api/user/register` | Register a new user (SENDER/RECEIVER) |
+| POST   | `/api/user/login`    | Login user & get token |
 
 ---
 

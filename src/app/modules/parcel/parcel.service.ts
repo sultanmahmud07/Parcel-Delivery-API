@@ -162,6 +162,26 @@ const deliveryParcelByReceiver = async (parcelId: string, receiverId: Types.Obje
     data: parcel
   };
 };
+const deleteParcel = async (parcelId: string) => {
+   const parcel = await Parcel.findById(parcelId);
+  if (!parcel) {
+    throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+  }
+
+  if (parcel.status !== "REQUESTED") {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Parcel cannot be deleted because its status is ${parcel.status}`
+    );
+  }
+
+  await Parcel.findByIdAndDelete(parcelId);
+
+  await parcel.save();
+  return {
+    data: parcelId
+  };
+};
 
 export const ParcelService = {
   createParcel,
@@ -174,5 +194,6 @@ export const ParcelService = {
   parcelBlockAndUnblock,
   cancelParcel,
   deliveryParcelByReceiver,
-  assignDeliveryPersonnel
+  assignDeliveryPersonnel,
+  deleteParcel 
 };

@@ -19,6 +19,7 @@ router.get("/sender", checkAuth(Role.SENDER), ParcelController.getSenderParcels)
 router.get("/receiver", checkAuth(Role.RECEIVER), ParcelController.getReceiverParcels);
 router.get("/history", checkAuth(Role.RECEIVER), ParcelController.getDeliveryHistory);
 router.get("/:id", checkAuth(...Object.values(Role)), ParcelController.getParcelById);
+router.delete("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.SENDER), ParcelController.deleteParcel);
 
 router.patch("/cancel/:id", checkAuth(Role.SENDER), ParcelController.cancelParcel);
 router.patch("/delivery/:id", checkAuth(Role.RECEIVER), ParcelController.deliveryParcelByReceiver);

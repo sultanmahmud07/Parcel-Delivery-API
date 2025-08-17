@@ -159,6 +159,19 @@ const updateParcelStatus = catchAsync(async (req: Request, res: Response, next: 
     data: result.data
   })
 })
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const deleteParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const parcelId = req.params.id;
+    const result = await ParcelService.deleteParcel(parcelId);
+
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Parcel deleted successfully",
+    data: result.data
+  })
+})
 export const getParcelById = catchAsync(async (req: Request, res: Response) => {
   const parcelId = req.params.id;
 
@@ -182,5 +195,6 @@ export const ParcelController = {
   deliveryParcelByReceiver,
   updateParcelStatus,
   assignDeliveryPersonnel,
-  parcelBlockAndUnblock
+  parcelBlockAndUnblock,
+  deleteParcel
 }
