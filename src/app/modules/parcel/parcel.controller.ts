@@ -90,7 +90,7 @@ const deliveryParcelByReceiver = catchAsync(async (req: Request, res: Response, 
 })
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getDeliveryHistory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-const decodeToken = req.user as JwtPayload
+  const decodeToken = req.user as JwtPayload
   const result = await ParcelService.getDeliveryHistory(decodeToken.userId);
 
   sendResponse(res, {
@@ -102,7 +102,7 @@ const decodeToken = req.user as JwtPayload
 })
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const parcelBlockAndUnblock = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-   const { isBlocked, location, note } = req.body;
+  const { isBlocked, location, note } = req.body;
   const { id: parcelId } = req.params;
   const decoded = req.user as JwtPayload;
   const updatedBy = new Types.ObjectId(decoded._id);
@@ -125,8 +125,8 @@ const parcelBlockAndUnblock = catchAsync(async (req: Request, res: Response, nex
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const assignDeliveryPersonnel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-   const { parcelId } = req.params;
-    const { personnelId } = req.body;
+  const { parcelId } = req.params;
+  const { personnelId } = req.body;
 
   const result = await ParcelService.assignDeliveryPersonnel(parcelId, personnelId);
 
@@ -162,7 +162,12 @@ const updateParcelStatus = catchAsync(async (req: Request, res: Response, next: 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const deleteParcel = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const parcelId = req.params.id;
-    const result = await ParcelService.deleteParcel(parcelId);
+  const user = req.user as JwtPayload;
+  const result = await ParcelService.deleteParcel(
+    parcelId,
+    new Types.ObjectId(user.userId),
+    user.role
+  );
 
 
   sendResponse(res, {

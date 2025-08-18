@@ -32,14 +32,14 @@ const getParcelsBySender = async (senderId: string) => {
   }
 };
 const getParcelsByAdmin = async () => {
- const parcels = await Parcel.find({});
-     const totalParcels = await Parcel.countDocuments();
-     return {
-         data: parcels,
-         meta: {
-             total: totalParcels
-         }
-     }
+  const parcels = await Parcel.find({});
+  const totalParcels = await Parcel.countDocuments();
+  return {
+    data: parcels,
+    meta: {
+      total: totalParcels
+    }
+  }
 };
 const getParcelsByReceiver = async (receiverId: string) => {
   const parcel = await Parcel.find({ receiver: receiverId });
@@ -49,9 +49,9 @@ const getParcelsByReceiver = async (receiverId: string) => {
 };
 const getDeliveryHistory = async (receiverId: string) => {
   const parcel = await Parcel.find({
-      receiver: receiverId,
-      status: "DELIVERED",
-    }).populate("sender", "name email");
+    receiver: receiverId,
+    status: "DELIVERED",
+  }).populate("sender", "name email");
   return {
     data: parcel
   }
@@ -83,13 +83,13 @@ const updateParcelStatus = async (parcelId: string, status: ParcelStatus, update
 };
 
 const assignDeliveryPersonnel = async (parcelId: string, personnelId: string) => {
-    const parcel = await Parcel.findByIdAndUpdate(
-      parcelId,
-      { deliveryPersonnel: personnelId },
-      { new: true }
-    ).populate("deliveryPersonnel", "name email");
+  const parcel = await Parcel.findByIdAndUpdate(
+    parcelId,
+    { deliveryPersonnel: personnelId },
+    { new: true }
+  ).populate("deliveryPersonnel", "name email");
 
-    if (!parcel) throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
+  if (!parcel) throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
 
   await parcel.save();
   return {
@@ -105,7 +105,7 @@ const parcelBlockAndUnblock = async (
 ) => {
   const parcel = await Parcel.findById(parcelId);
   if (!parcel) throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
-  
+
   parcel.isBlocked = isBlocked;
 
   parcel.statusLogs.push({
@@ -118,7 +118,7 @@ const parcelBlockAndUnblock = async (
 
   await parcel.save();
 
-  return parcel; 
+  return parcel;
 };
 
 
@@ -162,25 +162,44 @@ const deliveryParcelByReceiver = async (parcelId: string, receiverId: Types.Obje
     data: parcel
   };
 };
-const deleteParcel = async (parcelId: string) => {
-   const parcel = await Parcel.findById(parcelId);
+const deleteParcel = async (
+  parcelId: string,
+  userId: Types.ObjectId,
+  role: string
+) => {
+  const parcel = await Parcel.findById(parcelId);
   if (!parcel) {
     throw new AppError(httpStatus.NOT_FOUND, "Parcel not found");
   }
 
-  if (parcel.status !== "REQUESTED") {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      `Parcel cannot be deleted because its status is ${parcel.status}`
-    );
+  //  If ADMIN or SUPER_ADMIN => Only can delete directly
+  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+    await Parcel.findByIdAndDelete(parcelId);
+    return { data:parcelId };
   }
 
-  await Parcel.findByIdAndDelete(parcelId);
+  //  If SENDER => must be the sender & status must be REQUESTED
+  if (role === "SENDER") {
+    if (parcel.sender.toString() !== userId.toString()) {
+      // console.log("Sender ID mismatch:", parcel.sender.toString(), userId.toString());
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "You are not authorized to delete this parcel"
+      );
+    }
 
-  await parcel.save();
-  return {
-    data: parcelId
-  };
+    if (parcel.status !== "REQUESTED") {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        `Parcel cannot be deleted because its status is ${parcel.status}`
+      );
+    }
+
+    await Parcel.findByIdAndDelete(parcelId);
+    return { data: parcelId };
+  }
+  // If RECEIVER => Cannot delete
+  throw new AppError(httpStatus.FORBIDDEN, "You are not authorized to delete parcels");
 };
 
 export const ParcelService = {
@@ -195,5 +214,5 @@ export const ParcelService = {
   cancelParcel,
   deliveryParcelByReceiver,
   assignDeliveryPersonnel,
-  deleteParcel 
+  deleteParcel
 };
