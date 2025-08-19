@@ -1,126 +1,190 @@
-# 📦 Parcel Delivery API
-
-A backend service for managing parcel deliveries, users, and role-based operations.  
-This system supports **senders, receivers, admins, and delivery personnel**, providing secure parcel tracking and management.
-
----
+# 📦 Parcel Delivery System API
 
 ## 🚀 Project Overview
-
-The **Parcel Delivery API** is designed to handle end-to-end parcel delivery management.  
-It allows:
-- **Senders** to create and track parcels.
-- **Receivers** to confirm deliveries and view history.
-- **Admins** to manage users, block/unblock parcels, and assign delivery personnel.
-- **Delivery personnel** (optional) to update parcel statuses.
-
-The project is built using **Node.js, Express, TypeScript, and MongoDB**, ensuring a scalable and secure solution.
+The **Parcel Delivery System API** is a backend service built with **Node.js, Express, TypeScript, and MongoDB**.  
+It allows users to send and receive parcels, track delivery progress, and manage delivery operations with role-based access control.
 
 ---
 
 ## ✨ Features
-
-- 🔐 **Role-based Authentication** (Admin, Sender, Receiver, Delivery Personnel)  
-- 📦 **Parcel Management**
-  - Create, update, and track parcels
-  - Assign delivery personnel  
-  - Block/unblock parcels with status logs  
-- 👤 **User Management**
-  - Registration and login (with roles)
-  - Block/unblock users  (only admin/super-admin)
-- 📊 **Parcel Status Logs** (history of updates and activities)
-- 📝 **Delivery Confirmation & History for Receivers**
-- ⚡ **JWT Authentication & Authorization**
-
----
-
-## 🛠️ Tech Stack
-
-- **Backend:** Node.js, Express.js, TypeScript  
-- **Database:** MongoDB + Mongoose  
-- **Authentication:** JWT (JSON Web Token)  
-- **Error Handling:** Custom `AppError` with global error middleware  
-- **Validation:** Zod (for request validation)  
+- **Authentication & Authorization**
+  - Register/Login with JWT
+  - Google OAuth support
+  - Role-based access (Admin, Super Admin, Sender, Receiver, Delivery Personnel)
+- **Parcel Management**
+  - Create, update, block/unblock, and delete parcels
+  - Assign delivery personnel
+  - Track parcel using tracking ID
+- **User Management**
+  - Admins can block/unblock users
+  - Super Admin can manage all users
+- **Status Tracking**
+  - Logs parcel delivery status with timestamp, location, and notes
 
 ---
 
-## 📍 API Endpoints
-
-### 🔑 Auth
-| Method | Endpoint         | Description                  |
-|--------|------------------|------------------------------|
-| POST   | `/api/v1/user/register` | Register a new user (SENDER/RECEIVER) |
-| POST   | `/api/v1/user/login`    | Login user & get token |
-
----
-
-### 👤 User
-| Method | Endpoint                  | Description                  |
-|--------|---------------------------|------------------------------|
-| GET    | `/api/v1/user`              | Get all users (admin only)   |
-| PATCH  | `/api/v1/user/:id/block`    | Block a user (admin only)    |
-| PATCH  | `/api/v1/user/:id/unblock`  | Unblock a user (admin only)  |
+## 🛠 Tech Stack
+- **Backend Framework:** Node.js, Express.js, TypeScript
+- **Database:** MongoDB (Mongoose ODM)
+- **Authentication:** JWT (Access & Refresh Tokens), Google OAuth
+- **Security:** Bcrypt, CORS, Helmet
+- **Utilities:** Express-session, Winston Logger
 
 ---
 
-### 📦 Parcel
-| Method | Endpoint                                | Description                                   |
-|--------|-----------------------------------------|-----------------------------------------------|
-| POST   | `/api/v1/parcel`                          | Create a new parcel (sender only)             |
-| GET    | `/api/v1/parcel/:id`                      | Get parcel by ID                              |
-| GET    | `/api/v1/parcel/tracking/:trackingId`     | Track parcel by tracking ID                   |
-| PATCH  | `/api/v1/parcel/:id/status`               | Update parcel status (admin/delivery only)    |
-| PATCH  | `/api/v1/parcel/:id/block`                | Block/Unblock a parcel (admin only)           |
-| PATCH  | `/api/v1/parcel/:id`                      | ADMIN or SUPER_ADMIN can delete directly and If SENDER => must be the sender & status must be REQUESTED           |
-| PATCH  | `/api/v1/parcel/:id/assign-personnel`     | Assign delivery personnel (admin only)        |
-| GET    | `/api/v1/parcel/receiver/history`         | Get delivery history for logged-in receiver   |
+## 🔑 Environment Variables (.env)
+```env
+PORT=5000
+DB_URL=your_mongo_connection_string
+NODE_ENV=development
+
+# JWT
+JWT_ACCESS_SECRET=access_secret
+JWT_ACCESS_EXPIRES=1d
+JWT_REFRESH_SECRET=refresh_secret
+JWT_REFRESH_EXPIRES=30d
+
+# BCRYPT
+BCRYPT_SALT_ROUND=10
+
+# SUPER ADMIN
+SUPER_ADMIN_EMAIL=super@gmail.com
+SUPER_ADMIN_PASSWORD=12345678
+
+# Google
+GOOGLE_CLIENT_SECRET=your_google_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/v1/auth/google/callback
+
+# Express Session
+EXPRESS_SESSION_SECRET=express-session
+
+# Frontend URL
+FRONTEND_URL=http://localhost:5173
+```
 
 ---
 
-### 📜 Status Logs
-Each parcel maintains a `statusLogs` array for audit trails:  
+## 📡 API Endpoints
+
+### 🔐 Authentication
+- `POST /api/v1/auth/register` – Register user  
+- `POST /api/v1/auth/login` – Login user  
+- `GET /api/v1/auth/google` – Google OAuth login  
+
+---
+
+### 🚚 Parcel APIs
+
+#### 1. Create Parcel
+**POST** `/api/v1/parcels`
+
+**Request Body**
 ```json
 {
-  "status": "IN_TRANSIT",
-  "location": "Warehouse - Dhaka",
-  "note": "Parcel dispatched",
-  "updatedBy": "64c8f3a9e23f2f45d1a1b123",
-  "timestamp": "2025-08-16T10:20:30Z"
+  "sender": "64dcbf1a2f9a5b8c12345678",
+  "receiver": "64dcbf1a2f9a5b8c87654321",
+  "type": "Electronics",
+  "weight": 2.5,
+  "address": "123, Dhaka, Bangladesh",
+  "fee": 150,
+  "deliveryDate": "2025-08-25"
 }
 ```
 
 ---
 
-## 🚦 Getting Started
+#### 2. Update Parcel Status
+**PATCH** `/api/v1/parcels/:id/status`
 
-1. Clone the repo  
-   ```bash
-   git clone https://github.com/your-username/parcel-delivery-api.git
-   cd parcel-delivery-api
-   ```
-2. Install dependencies  
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file  
-   ```env
-   PORT=5000
-   DATABASE_URL=mongodb+srv://...
-   JWT_SECRET=your_secret_key
-   ```
-4. Start development server  
-   ```bash
-   npm run dev
-   ```
+**Request Body**
+```json
+{
+  "status": "DISPATCHED",
+  "location": "Dhaka Hub",
+  "note": "Parcel sent to delivery hub"
+}
+```
 
 ---
 
-## ✅ Future Improvements
-- Delivery personnel dashboard  
-- Notification system (email/SMS updates)  
-- Payment integration  
+#### 3. Assign Delivery Personnel
+**PATCH** `/api/v1/parcels/:id/assign`
+
+**Request Body**
+```json
+{
+  "personnelId": "64dd111a2f9a5b8c99999999"
+}
+```
 
 ---
 
-## 📄 License
-This project is open-source and available under the **MIT License**.
+#### 4. Block / Unblock Parcel
+**PATCH** `/api/v1/parcels/:id/block`
+
+**Request Body**
+```json
+{
+  "isBlocked": true,
+  "location": "Warehouse",
+  "note": "Suspicious parcel"
+}
+```
+
+---
+
+#### 5. Delete Parcel
+**DELETE** `/api/v1/parcels/:id`
+
+- Allowed if:
+  - User is **Admin / Super Admin**
+  - OR user is **Sender** and `status = REQUESTED`
+
+---
+
+#### 6. Get Parcel by Tracking ID
+**GET** `/api/v1/parcels/track?trackingId=TRK-1723800000001`
+
+**Response**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Parcel retrieved successfully",
+  "data": {
+    "trackingId": "TRK-1723800000001",
+    "status": "IN_TRANSIT",
+    "address": "123, Dhaka, Bangladesh",
+    "statusLogs": [
+      { "status": "REQUESTED", "timestamp": "2025-08-16T10:00:00.000Z" },
+      { "status": "DISPATCHED", "location": "Dhaka Hub", "timestamp": "2025-08-17T09:00:00.000Z" }
+    ]
+  }
+}
+```
+
+---
+
+## ▶️ Run the Project
+
+### 1. Clone the repo
+```sh
+git clone https://github.com/your-username/parcel-delivery-system.git
+cd parcel-delivery-system
+```
+
+### 2. Install dependencies
+```sh
+npm install
+```
+
+### 3. Setup `.env`
+Create a `.env` file in the root with the values from above.
+
+### 4. Run server
+```sh
+npm run dev
+```
+
+Server will run on: **http://localhost:5000/api/v1**
