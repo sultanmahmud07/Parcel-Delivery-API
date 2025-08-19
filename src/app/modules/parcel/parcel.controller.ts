@@ -22,9 +22,9 @@ export const createParcel = catchAsync(async (req: Request, res: Response, next:
   });
 })
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getParcelsByAdmin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const result = await ParcelService.getParcelsByAdmin();
+const getParcelsByAdmin = catchAsync(async (req: Request, res: Response) => {
+  const query = req.query;
+  const result = await ParcelService.getParcelsByAdmin(query as Record<string, string>);
 
   sendResponse(res, {
     success: true,
@@ -189,6 +189,18 @@ export const getParcelById = catchAsync(async (req: Request, res: Response) => {
     data: parcel,
   });
 });
+export const getParcelByTrackingId = catchAsync(async (req: Request, res: Response) => {
+  const trackingId = req.params.id;
+
+  const parcel = await ParcelService.getParcelByTrackingId(trackingId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Parcel details retrieved with tracking ID',
+    data: parcel,
+  });
+});
 export const ParcelController = {
   createParcel,
   getSenderParcels,
@@ -201,5 +213,6 @@ export const ParcelController = {
   updateParcelStatus,
   assignDeliveryPersonnel,
   parcelBlockAndUnblock,
-  deleteParcel
+  deleteParcel,
+  getParcelByTrackingId
 }

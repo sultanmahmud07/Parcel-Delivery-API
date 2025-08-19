@@ -4,6 +4,8 @@ import AppError from "../../errorHelpers/AppError";
 import { generateTrackingId } from "../../utils/generateTrackingId";
 import httpStatus from "http-status-codes";
 import { Types } from "mongoose";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { parcelSearchableFields } from "./parcel.constant";
 
 const createParcel = async (data: Partial<IParcel>, userId: string) => {
   const trackingId = generateTrackingId();
@@ -31,14 +33,24 @@ const getParcelsBySender = async (senderId: string) => {
     data: parcel
   }
 };
-const getParcelsByAdmin = async () => {
-  const parcels = await Parcel.find({});
-  const totalParcels = await Parcel.countDocuments();
+const getParcelsByAdmin = async (query: Record<string, string>) => {
+ 
+  const queryBuilder = new QueryBuilder(Parcel.find(), query)
+
+  const parcels = await queryBuilder
+    .search(parcelSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate()
+
+  const [data, meta] = await Promise.all([
+    parcels.build(),
+    queryBuilder.getMeta()
+  ])
   return {
-    data: parcels,
-    meta: {
-      total: totalParcels
-    }
+    data,
+    meta
   }
 };
 const getParcelsByReceiver = async (receiverId: string) => {
@@ -58,6 +70,18 @@ const getDeliveryHistory = async (receiverId: string) => {
 };
 const getParcelById = async (parcelId: string) => {
   const parcel = await Parcel.find({ _id: parcelId });
+  return {
+    data: parcel
+  }
+};
+const getParcelByTrackingId = async (trackingId: string) => {
+  const parcel = await Parcel.find({ trackingId })
+    .populate("sender", "name email")
+    .populate("receiver", "name email");
+    
+  if (!parcel) {
+    throw new AppError(httpStatus.NOT_FOUND, "Parcel not found with this tracking ID");
+  }
   return {
     data: parcel
   }
@@ -175,7 +199,7 @@ const deleteParcel = async (
   //  If ADMIN or SUPER_ADMIN => Only can delete directly
   if (role === "ADMIN" || role === "SUPER_ADMIN") {
     await Parcel.findByIdAndDelete(parcelId);
-    return { data:parcelId };
+    return { data: parcelId };
   }
 
   //  If SENDER => must be the sender & status must be REQUESTED
@@ -214,5 +238,6 @@ export const ParcelService = {
   cancelParcel,
   deliveryParcelByReceiver,
   assignDeliveryPersonnel,
+  getParcelByTrackingId,
   deleteParcel
 };
