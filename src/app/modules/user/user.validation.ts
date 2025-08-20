@@ -10,7 +10,8 @@ export const createUserZodSchema = z.object({
     .regex(/(?=.*[!@#$%^&*])/, "Must include special char")
     .regex(/(?=.*\d)/, "Must include number"),
   phone: z.string().regex(/^(?:\+8801\d{9}|01\d{9})$/).optional(),
-  address: z.string().max(200).optional()
+  address: z.string().max(200).optional(),
+  //  role: z.nativeEnum(Role).optional() 
 });
 
 export const updateUserZodSchema = z.object({

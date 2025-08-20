@@ -62,11 +62,11 @@ It allows:
 ### 👤 User (`/api/v1/user`)
 | Method | Endpoint | Access | Description |
 |--------|----------|--------|-------------|
-| POST   | `/api/v1/user/register` | Public | Register a new user (SENDER/RECEIVER by default) |
+| POST   | `/api/v1/user/register` | Public | Register a new user (SENDER by default) |
 | GET    | `/api/v1/user/all-users` | Admin, Super Admin | Get all users |
 | GET    | `/api/v1/user/:id` | Admin, Super Admin | Get a single user info |
 | GET    | `/api/v1/user/me` | Admin, Super Admin, Sender, Receiver | Get self profile data |
-| PATCH  | `/api/v1/user/:id` | Admin, Super Admin, Sender, Receiver | Update user (self or by admin) |
+| PATCH  | `/api/v1/user/:id` | Admin, Super Admin, Sender, Receiver | Update user (self or by admin can change roll) |
 
 
 #### Register user
@@ -76,8 +76,7 @@ It allows:
 ```json
 { "name": "Sender",
     "email": "sender@gmail.com",
-    "password": "S@12345678",
-    "role": "SENDER"
+    "password": "S@12345678"
 }
 ```
 ---
