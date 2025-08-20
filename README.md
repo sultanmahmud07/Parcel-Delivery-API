@@ -74,9 +74,10 @@ It allows:
 
 **Request Body**
 ```json
-{ "name": "Sender",
-    "email": "sender@gmail.com",
-    "password": "S@12345678"
+{ 
+  "name": "Sender",
+  "email": "sender@gmail.com",
+  "password": "S@12345678"
 }
 ```
 ---
