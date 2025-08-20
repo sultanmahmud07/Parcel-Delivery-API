@@ -32,7 +32,7 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
   if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
 
   if (payload.role) {
-    if ([Role.USER, Role.SENDER, Role.RECEIVER].includes(decodedToken.role)) {
+    if ([Role.SENDER, Role.RECEIVER].includes(decodedToken.role)) {
       throw new AppError(httpStatus.FORBIDDEN, "Insufficient role");
     }
 
@@ -42,7 +42,7 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
   }
 
   if (payload.isActive || payload.isDeleted || payload.isVerified) {
-    if ([Role.USER, Role.SENDER, Role.RECEIVER].includes(decodedToken.role)) {
+    if ([Role.SENDER, Role.RECEIVER].includes(decodedToken.role)) {
       throw new AppError(httpStatus.FORBIDDEN, "Insufficient role");
     }
   }
@@ -69,9 +69,22 @@ const getAllUsers = async () => {
         }
     }
 };
-
+const getSingleUser = async (id: string) => {
+    const user = await User.findById(id).select("-password");
+    return {
+        data: user
+    }
+};
+const getMe = async (userId: string) => {
+    const user = await User.findById(userId).select("-password");
+    return {
+        data: user
+    }
+};
 export const UserServices = {
     createUser,
     getAllUsers,
-    updateUser
+    updateUser,
+    getMe,
+    getSingleUser
 }
