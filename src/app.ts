@@ -21,7 +21,11 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(cookieParser())
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: ["http://localhost:3000", "http://localhost:5173", "https://books-finder-bd.vercel.app"],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
+    credentials: true, 
+  }))
 
 app.use("/api/v1", router)
 
