@@ -26,11 +26,25 @@ const createParcel = async (data: Partial<IParcel>, userId: string) => {
   return parcel;
 };
 
-const getParcelsBySender = async (senderId: string) => {
-  // console.log("Sender Id:", senderId)
-  const parcel = await Parcel.find({ sender: senderId });
+const getParcelsBySender = async (senderId: string, query: Record<string, string>) => {
+
+   const queryBuilder = new QueryBuilder(Parcel.find({ sender: senderId }), query)
+
+  const parcels = await queryBuilder
+    .search(parcelSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate()
+
+  const [data, meta] = await Promise.all([
+    parcels.build(),
+    queryBuilder.getMeta()
+  ])
+  // console.log(meta)
   return {
-    data: parcel
+    data,
+    meta
   }
 };
 const getParcelsByAdmin = async (query: Record<string, string>) => {

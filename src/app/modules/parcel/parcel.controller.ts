@@ -36,14 +36,16 @@ const getParcelsByAdmin = catchAsync(async (req: Request, res: Response) => {
 })
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getSenderParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+ const query = req.query;
   const decodeToken = req.user as JwtPayload
-  const result = await ParcelService.getParcelsBySender(decodeToken.userId);
+  const result = await ParcelService.getParcelsBySender(decodeToken.userId, query as Record<string, string>);
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.CREATED,
     message: "Parcel Retrieved Successfully By Sender",
-    data: result.data
+    data: result.data,
+    meta: result.meta
   })
 })
 
