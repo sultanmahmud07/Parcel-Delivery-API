@@ -42,6 +42,28 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
         meta: result.meta
     })
 })
+const getAllSender = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const result = await UserServices.getAllSender();
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "All Users Retrieved Successfully",
+        data: result.data,
+        meta: result.meta
+    })
+})
+const getAllReceiver = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const result = await UserServices.getAllReceiver();
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "All Users Retrieved Successfully",
+        data: result.data,
+        meta: result.meta
+    })
+})
 const getMe = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload
     const result = await UserServices.getMe(decodedToken.userId);
@@ -65,6 +87,8 @@ const getSingleUser = catchAsync(async (req: Request, res: Response, next: NextF
 export const UserControllers = {
     createUser,
     getAllUsers,
+    getAllSender,
+    getAllReceiver,
     updateUser,
     getMe,
     getSingleUser

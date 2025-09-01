@@ -79,6 +79,16 @@ const getAllSender = async () => {
     },
   };
 };
+const getAllReceiver = async () => {
+  const users = await User.find({ role: "RECEIVER" });
+  const totalReceiver = await User.countDocuments({ role: "RECEIVER" });
+  return {
+    data: users,
+    meta: {
+      total: totalReceiver,
+    },
+  };
+};
 const getSingleUser = async (id: string) => {
     const user = await User.findById(id).select("-password");
     return {
@@ -95,6 +105,7 @@ export const UserServices = {
     createUser,
     getAllUsers,
     getAllSender,
+    getAllReceiver,
     updateUser,
     getMe,
     getSingleUser
