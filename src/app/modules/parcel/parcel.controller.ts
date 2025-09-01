@@ -48,7 +48,7 @@ const getSenderParcels = catchAsync(async (req: Request, res: Response, next: Ne
     meta: result.meta
   })
 })
-// Testing commit
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getReceiverParcels = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const decodeToken = req.user as JwtPayload
