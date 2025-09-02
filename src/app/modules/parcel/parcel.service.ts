@@ -83,11 +83,27 @@ const getDeliveryHistory = async (receiverId: string) => {
   }
 };
 const getParcelById = async (parcelId: string) => {
-  const parcel = await Parcel.find({ _id: parcelId });
+  const parcel = await Parcel.findById(parcelId)
+    .populate("sender", "name email")
+    .populate("receiver", "name email")
+    // .populate({
+    //   path: "statusLogs.updatedBy",
+    //   select: "name",
+    // });
+
+  // Map statusLogs to extract only name
+  // const statusLogs = parcel?.statusLogs.map((log) => ({
+  //   status: log.status,
+  //   updatedByName: log.updatedBy ? log.updatedBy.name : "Unknown",
+  //   timestamp: log.timestamp,
+  // }));
+
   return {
-    data: parcel
-  }
+    data: parcel,
+  };
 };
+
+
 const getParcelByTrackingId = async (trackingId: string) => {
   const parcel = await Parcel.find({ trackingId })
     .populate("sender", "name email")
@@ -113,7 +129,6 @@ const updateParcelStatus = async (parcelId: string, status: ParcelStatus, update
     note,
     timestamp: new Date()
   });
-
   await parcel.save();
   return {
     data: parcel
