@@ -9,6 +9,8 @@ const router = Router()
 
 router.post("/register", validateRequest(createUserZodSchema), UserControllers.createUser)
 router.get("/all-users", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), UserControllers.getAllUsers)
+router.get("/deleted-users", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), UserControllers.getAllDeletedUsers)
+router.get("/unauthor-users", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), UserControllers.getAllUnauthorizedUsers)
 router.get("/all-sender", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), UserControllers.getAllSender)
 router.get("/all-receiver", checkAuth(...Object.values(Role)), UserControllers.getAllReceiver)
 router.get("/me", checkAuth(...Object.values(Role)), UserControllers.getMe)

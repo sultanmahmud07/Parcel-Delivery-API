@@ -5,6 +5,8 @@ import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
 import { IAuthProvider, IUser, Role } from "./user.interface";
 import { User } from "./user.model";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { userSearchableFields } from "./user.constant";
 
 const createUser = async (payload: Partial<IUser>) => {
   const { email, password, ...rest } = payload;
@@ -59,15 +61,65 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
   return updatedUser;
 };
 
-const getAllUsers = async () => {
-    const users = await User.find({});
-    const totalUsers = await User.countDocuments();
-    return {
-        data: users,
-        meta: {
-            total: totalUsers
-        }
-    }
+const getAllUsers = async (query: Record<string, string>) => {
+  
+ const queryBuilder = new QueryBuilder(User.find({isDeleted: false}), query)
+
+  const users = await queryBuilder
+    .search(userSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate()
+
+  const [data, meta] = await Promise.all([
+    users.build(),
+    queryBuilder.getMeta()
+  ])
+  return {
+    data,
+    meta
+  }
+};
+const getAllDeletedUsers = async (query: Record<string, string>) => {
+  
+ const queryBuilder = new QueryBuilder(User.find({isDeleted: true}), query)
+
+  const users = await queryBuilder
+    .search(userSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate()
+
+  const [data, meta] = await Promise.all([
+    users.build(),
+    queryBuilder.getMeta()
+  ])
+  return {
+    data,
+    meta
+  }
+};
+const getAllUnauthorizedUsers = async (query: Record<string, string>) => {
+  
+ const queryBuilder = new QueryBuilder(User.find({isVerified: false}), query)
+
+  const users = await queryBuilder
+    .search(userSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate()
+
+  const [data, meta] = await Promise.all([
+    users.build(),
+    queryBuilder.getMeta()
+  ])
+  return {
+    data,
+    meta
+  }
 };
 const getAllSender = async () => {
   const users = await User.find({ role: "SENDER" });
@@ -104,6 +156,8 @@ const getMe = async (userId: string) => {
 export const UserServices = {
     createUser,
     getAllUsers,
+    getAllDeletedUsers,
+    getAllUnauthorizedUsers,
     getAllSender,
     getAllReceiver,
     updateUser,
