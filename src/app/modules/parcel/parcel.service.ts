@@ -67,10 +67,24 @@ const getParcelsByAdmin = async (query: Record<string, string>) => {
     meta
   }
 };
-const getParcelsByReceiver = async (receiverId: string) => {
-  const parcel = await Parcel.find({ receiver: receiverId });
+const getParcelsByReceiver = async (receiverId: string, query: Record<string, string>) => {
+  const queryBuilder = new QueryBuilder(Parcel.find({ receiver: receiverId }), query)
+
+  const parcels = await queryBuilder
+    .search(parcelSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate()
+
+  const [data, meta] = await Promise.all([
+    parcels.build(),
+    queryBuilder.getMeta()
+  ])
+  // console.log(meta)
   return {
-    data: parcel
+    data,
+    meta
   }
 };
 const getDeliveryHistory = async (receiverId: string) => {
