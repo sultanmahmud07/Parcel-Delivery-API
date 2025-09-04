@@ -6,24 +6,19 @@ import { StatsController } from "./stats.controller";
 const router = express.Router();
 
 router.get(
-    "/booking",
-    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-    StatsController.getBookingStats
+    "/sender",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.SENDER),
+    StatsController.getSenderStats
 );
 router.get(
-    "/payment",
-    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-    StatsController.getPaymentStats
+    "/receiver",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.RECEIVER),
+    StatsController.getSenderStats
 );
 router.get(
     "/user",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
     StatsController.getUserStats
-);
-router.get(
-    "/tour",
-    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-    StatsController.getTourStats
 );
 
 export const StatsRoutes = router;
