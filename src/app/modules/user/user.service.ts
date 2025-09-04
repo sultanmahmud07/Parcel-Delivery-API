@@ -81,6 +81,26 @@ const getAllUsers = async (query: Record<string, string>) => {
     meta
   }
 };
+const getAllAdmin = async (query: Record<string, string>) => {
+  
+ const queryBuilder = new QueryBuilder(User.find({role: "ADMIN"}), query)
+
+  const users = await queryBuilder
+    .search(userSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate()
+
+  const [data, meta] = await Promise.all([
+    users.build(),
+    queryBuilder.getMeta()
+  ])
+  return {
+    data,
+    meta
+  }
+};
 const getAllDeletedUsers = async (query: Record<string, string>) => {
   
  const queryBuilder = new QueryBuilder(User.find({isDeleted: true}), query)
@@ -156,6 +176,7 @@ const getMe = async (userId: string) => {
 export const UserServices = {
     createUser,
     getAllUsers,
+    getAllAdmin,
     getAllDeletedUsers,
     getAllUnauthorizedUsers,
     getAllSender,

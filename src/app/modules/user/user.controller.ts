@@ -43,6 +43,18 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
         meta: result.meta
     })
 })
+const getAllAdmin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const query = req.query;
+    const result = await UserServices.getAllAdmin(query as Record<string, string>);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "All Admin Retrieved Successfully",
+        data: result.data,
+        meta: result.meta
+    })
+})
 const getAllDeletedUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const query = req.query;
     const result = await UserServices.getAllDeletedUsers(query as Record<string, string>);
@@ -112,6 +124,7 @@ const getSingleUser = catchAsync(async (req: Request, res: Response, next: NextF
 export const UserControllers = {
     createUser,
     getAllUsers,
+    getAllAdmin,
     getAllDeletedUsers,
     getAllUnauthorizedUsers,
     getAllSender,
