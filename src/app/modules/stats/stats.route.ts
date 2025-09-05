@@ -13,7 +13,7 @@ router.get(
 router.get(
     "/receiver",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN, Role.RECEIVER),
-    StatsController.getSenderStats
+    StatsController.getReceiverStats
 );
 router.get(
     "/user",
