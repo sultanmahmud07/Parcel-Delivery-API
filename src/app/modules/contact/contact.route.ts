@@ -1,7 +1,5 @@
 import { Router } from "express";
 import { ContactController } from "./contact.controller";
-import { validateRequest } from "../../middlewares/validateRequest";
-import { createContactValidation } from "./contact.validation";
 import { checkAuth } from "../../middlewares/checkAuth";
 import { Role } from "../user/user.interface";
 
