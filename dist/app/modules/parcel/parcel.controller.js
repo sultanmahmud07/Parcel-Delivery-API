@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ParcelController = exports.getParcelById = exports.createParcel = void 0;
+exports.ParcelController = exports.getParcelByTrackingId = exports.getParcelById = exports.createParcel = void 0;
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const catchAsync_1 = require("../../utils/catchAsync");
 const parcel_service_1 = require("./parcel.service");
@@ -31,9 +31,9 @@ exports.createParcel = (0, catchAsync_1.catchAsync)((req, res, next) => __awaite
         data: parcel,
     });
 }));
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getParcelsByAdmin = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield parcel_service_1.ParcelService.getParcelsByAdmin();
+const getParcelsByAdmin = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query;
+    const result = yield parcel_service_1.ParcelService.getParcelsByAdmin(query);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.CREATED,
@@ -44,19 +44,22 @@ const getParcelsByAdmin = (0, catchAsync_1.catchAsync)((req, res, next) => __awa
 }));
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getSenderParcels = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query;
     const decodeToken = req.user;
-    const result = yield parcel_service_1.ParcelService.getParcelsBySender(decodeToken.userId);
+    const result = yield parcel_service_1.ParcelService.getParcelsBySender(decodeToken.userId, query);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.CREATED,
         message: "Parcel Retrieved Successfully By Sender",
-        data: result.data
+        data: result.data,
+        meta: result.meta
     });
 }));
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getReceiverParcels = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query;
     const decodeToken = req.user;
-    const result = yield parcel_service_1.ParcelService.getParcelsByReceiver(decodeToken.userId);
+    const result = yield parcel_service_1.ParcelService.getParcelsByReceiver(decodeToken.userId, query);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.CREATED,
@@ -141,6 +144,18 @@ const updateParcelStatus = (0, catchAsync_1.catchAsync)((req, res, next) => __aw
         data: result.data
     });
 }));
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const deleteParcel = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const parcelId = req.params.id;
+    const user = req.user;
+    const result = yield parcel_service_1.ParcelService.deleteParcel(parcelId, new mongoose_1.Types.ObjectId(user.userId), user.role);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: "Parcel deleted successfully",
+        data: result.data
+    });
+}));
 exports.getParcelById = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const parcelId = req.params.id;
     const parcel = yield parcel_service_1.ParcelService.getParcelById(parcelId);
@@ -148,6 +163,16 @@ exports.getParcelById = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(voi
         statusCode: http_status_codes_1.default.OK,
         success: true,
         message: 'Parcel details retrieved',
+        data: parcel,
+    });
+}));
+exports.getParcelByTrackingId = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const trackingId = req.params.id;
+    const parcel = yield parcel_service_1.ParcelService.getParcelByTrackingId(trackingId);
+    (0, sendResponse_1.sendResponse)(res, {
+        statusCode: http_status_codes_1.default.OK,
+        success: true,
+        message: 'Parcel details retrieved with tracking ID',
         data: parcel,
     });
 }));
@@ -162,5 +187,7 @@ exports.ParcelController = {
     deliveryParcelByReceiver,
     updateParcelStatus,
     assignDeliveryPersonnel,
-    parcelBlockAndUnblock
+    parcelBlockAndUnblock,
+    deleteParcel,
+    getParcelByTrackingId: exports.getParcelByTrackingId
 };

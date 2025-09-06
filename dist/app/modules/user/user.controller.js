@@ -39,7 +39,8 @@ const updateUser = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(vo
     });
 }));
 const getAllUsers = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.UserServices.getAllUsers();
+    const query = req.query;
+    const result = yield user_service_1.UserServices.getAllUsers(query);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.CREATED,
@@ -48,8 +49,88 @@ const getAllUsers = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(v
         meta: result.meta
     });
 }));
+const getAllAdmin = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query;
+    const result = yield user_service_1.UserServices.getAllAdmin(query);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: "All Admin Retrieved Successfully",
+        data: result.data,
+        meta: result.meta
+    });
+}));
+const getAllDeletedUsers = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query;
+    const result = yield user_service_1.UserServices.getAllDeletedUsers(query);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: "All Deleted Retrieved Successfully",
+        data: result.data,
+        meta: result.meta
+    });
+}));
+const getAllUnauthorizedUsers = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query;
+    const result = yield user_service_1.UserServices.getAllUnauthorizedUsers(query);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: "All Unauthorized Retrieved Successfully",
+        data: result.data,
+        meta: result.meta
+    });
+}));
+const getAllSender = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.UserServices.getAllSender();
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: "All Users Retrieved Successfully",
+        data: result.data,
+        meta: result.meta
+    });
+}));
+const getAllReceiver = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.UserServices.getAllReceiver();
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: "All Users Retrieved Successfully",
+        data: result.data,
+        meta: result.meta
+    });
+}));
+const getMe = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    const result = yield user_service_1.UserServices.getMe(decodedToken.userId);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: "Your profile Retrieved Successfully",
+        data: result.data
+    });
+}));
+const getSingleUser = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const result = yield user_service_1.UserServices.getSingleUser(id);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.CREATED,
+        message: "User Retrieved Successfully",
+        data: result.data
+    });
+}));
 exports.UserControllers = {
     createUser,
     getAllUsers,
-    updateUser
+    getAllAdmin,
+    getAllDeletedUsers,
+    getAllUnauthorizedUsers,
+    getAllSender,
+    getAllReceiver,
+    updateUser,
+    getMe,
+    getSingleUser
 };

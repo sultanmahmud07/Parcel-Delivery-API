@@ -119,7 +119,7 @@ const getParcelById = async (parcelId: string) => {
 
 
 const getParcelByTrackingId = async (trackingId: string) => {
-  const parcel = await Parcel.find({ trackingId })
+  const parcel = await Parcel.findOne({trackingId})
     .populate("sender", "name email")
     .populate("receiver", "name email");
     

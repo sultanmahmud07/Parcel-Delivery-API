@@ -15,7 +15,8 @@ exports.createUserZodSchema = zod_1.default.object({
         .regex(/(?=.*[!@#$%^&*])/, "Must include special char")
         .regex(/(?=.*\d)/, "Must include number"),
     phone: zod_1.default.string().regex(/^(?:\+8801\d{9}|01\d{9})$/).optional(),
-    address: zod_1.default.string().max(200).optional()
+    address: zod_1.default.string().max(200).optional(),
+    //  role: z.nativeEnum(Role).optional() 
 });
 exports.updateUserZodSchema = zod_1.default.object({
     name: zod_1.default.string().min(2).max(50).optional(),

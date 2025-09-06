@@ -14,6 +14,8 @@ router.get("/sender", (0, checkAuth_1.checkAuth)(user_interface_1.Role.SENDER), 
 router.get("/receiver", (0, checkAuth_1.checkAuth)(user_interface_1.Role.RECEIVER), parcel_controller_1.ParcelController.getReceiverParcels);
 router.get("/history", (0, checkAuth_1.checkAuth)(user_interface_1.Role.RECEIVER), parcel_controller_1.ParcelController.getDeliveryHistory);
 router.get("/:id", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), parcel_controller_1.ParcelController.getParcelById);
+router.get("/tracking-id/:id", parcel_controller_1.ParcelController.getParcelByTrackingId);
+router.delete("/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN, user_interface_1.Role.SENDER), parcel_controller_1.ParcelController.deleteParcel);
 router.patch("/cancel/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.SENDER), parcel_controller_1.ParcelController.cancelParcel);
 router.patch("/delivery/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.RECEIVER), parcel_controller_1.ParcelController.deliveryParcelByReceiver);
 router.patch("/block/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN, user_interface_1.Role.SUPER_ADMIN), parcel_controller_1.ParcelController.parcelBlockAndUnblock);

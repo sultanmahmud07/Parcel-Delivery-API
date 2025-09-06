@@ -17,6 +17,8 @@ const parcel_model_1 = require("./parcel.model");
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const generateTrackingId_1 = require("../../utils/generateTrackingId");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
+const QueryBuilder_1 = require("../../utils/QueryBuilder");
+const parcel_constant_1 = require("./parcel.constant");
 const createParcel = (data, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const trackingId = (0, generateTrackingId_1.generateTrackingId)();
     const initialStatusLog = {
@@ -27,27 +29,57 @@ const createParcel = (data, userId) => __awaiter(void 0, void 0, void 0, functio
     const parcel = yield parcel_model_1.Parcel.create(Object.assign(Object.assign({}, data), { trackingId, sender: userId, statusLogs: [initialStatusLog] }));
     return parcel;
 });
-const getParcelsBySender = (senderId) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log("Sender Id:", senderId)
-    const parcel = yield parcel_model_1.Parcel.find({ sender: senderId });
+const getParcelsBySender = (senderId, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const queryBuilder = new QueryBuilder_1.QueryBuilder(parcel_model_1.Parcel.find({ sender: senderId }), query);
+    const parcels = yield queryBuilder
+        .search(parcel_constant_1.parcelSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate();
+    const [data, meta] = yield Promise.all([
+        parcels.build(),
+        queryBuilder.getMeta()
+    ]);
+    // console.log(meta)
     return {
-        data: parcel
+        data,
+        meta
     };
 });
-const getParcelsByAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
-    const parcels = yield parcel_model_1.Parcel.find({});
-    const totalParcels = yield parcel_model_1.Parcel.countDocuments();
+const getParcelsByAdmin = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const queryBuilder = new QueryBuilder_1.QueryBuilder(parcel_model_1.Parcel.find(), query);
+    const parcels = yield queryBuilder
+        .search(parcel_constant_1.parcelSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate();
+    const [data, meta] = yield Promise.all([
+        parcels.build(),
+        queryBuilder.getMeta()
+    ]);
     return {
-        data: parcels,
-        meta: {
-            total: totalParcels
-        }
+        data,
+        meta
     };
 });
-const getParcelsByReceiver = (receiverId) => __awaiter(void 0, void 0, void 0, function* () {
-    const parcel = yield parcel_model_1.Parcel.find({ receiver: receiverId });
+const getParcelsByReceiver = (receiverId, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const queryBuilder = new QueryBuilder_1.QueryBuilder(parcel_model_1.Parcel.find({ receiver: receiverId }), query);
+    const parcels = yield queryBuilder
+        .search(parcel_constant_1.parcelSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate();
+    const [data, meta] = yield Promise.all([
+        parcels.build(),
+        queryBuilder.getMeta()
+    ]);
+    // console.log(meta)
     return {
-        data: parcel
+        data,
+        meta
     };
 });
 const getDeliveryHistory = (receiverId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -60,7 +92,30 @@ const getDeliveryHistory = (receiverId) => __awaiter(void 0, void 0, void 0, fun
     };
 });
 const getParcelById = (parcelId) => __awaiter(void 0, void 0, void 0, function* () {
-    const parcel = yield parcel_model_1.Parcel.find({ _id: parcelId });
+    const parcel = yield parcel_model_1.Parcel.findById(parcelId)
+        .populate("sender", "name email")
+        .populate("receiver", "name email");
+    // .populate({
+    //   path: "statusLogs.updatedBy",
+    //   select: "name",
+    // });
+    // Map statusLogs to extract only name
+    // const statusLogs = parcel?.statusLogs.map((log) => ({
+    //   status: log.status,
+    //   updatedByName: log.updatedBy ? log.updatedBy.name : "Unknown",
+    //   timestamp: log.timestamp,
+    // }));
+    return {
+        data: parcel,
+    };
+});
+const getParcelByTrackingId = (trackingId) => __awaiter(void 0, void 0, void 0, function* () {
+    const parcel = yield parcel_model_1.Parcel.find({ trackingId })
+        .populate("sender", "name email")
+        .populate("receiver", "name email");
+    if (!parcel) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Parcel not found with this tracking ID");
+    }
     return {
         data: parcel
     };
@@ -142,6 +197,31 @@ const deliveryParcelByReceiver = (parcelId, receiverId) => __awaiter(void 0, voi
         data: parcel
     };
 });
+const deleteParcel = (parcelId, userId, role) => __awaiter(void 0, void 0, void 0, function* () {
+    const parcel = yield parcel_model_1.Parcel.findById(parcelId);
+    if (!parcel) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Parcel not found");
+    }
+    //  If ADMIN or SUPER_ADMIN => Only can delete directly
+    if (role === "ADMIN" || role === "SUPER_ADMIN") {
+        yield parcel_model_1.Parcel.findByIdAndDelete(parcelId);
+        return { data: parcelId };
+    }
+    //  If SENDER => must be the sender & status must be REQUESTED
+    if (role === "SENDER") {
+        if (parcel.sender.toString() !== userId.toString()) {
+            // console.log("Sender ID mismatch:", parcel.sender.toString(), userId.toString());
+            throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "You are not authorized to delete this parcel");
+        }
+        if (parcel.status !== "REQUESTED") {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Parcel cannot be deleted because its status is ${parcel.status}`);
+        }
+        yield parcel_model_1.Parcel.findByIdAndDelete(parcelId);
+        return { data: parcelId };
+    }
+    // If RECEIVER => Cannot delete
+    throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "You are not authorized to delete parcels");
+});
 exports.ParcelService = {
     createParcel,
     getParcelsBySender,
@@ -153,5 +233,7 @@ exports.ParcelService = {
     parcelBlockAndUnblock,
     cancelParcel,
     deliveryParcelByReceiver,
-    assignDeliveryPersonnel
+    assignDeliveryPersonnel,
+    getParcelByTrackingId,
+    deleteParcel
 };
