@@ -5,6 +5,7 @@ export const createParcelZodSchema = z.object({
   type: z.string().min(1, "Parcel type required"),
   weight: z.number().positive("Weight must be positive"),
   address: z.string().min(10, "Address must be at least 10 chars"),
+  fee: z.number().optional(),
   deliveryDate: z.string().optional()
 });
 
