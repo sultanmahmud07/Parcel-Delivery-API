@@ -110,7 +110,7 @@ const getParcelById = (parcelId) => __awaiter(void 0, void 0, void 0, function* 
     };
 });
 const getParcelByTrackingId = (trackingId) => __awaiter(void 0, void 0, void 0, function* () {
-    const parcel = yield parcel_model_1.Parcel.find({ trackingId })
+    const parcel = yield parcel_model_1.Parcel.findOne({ trackingId })
         .populate("sender", "name email")
         .populate("receiver", "name email");
     if (!parcel) {
