@@ -10,6 +10,7 @@ exports.createParcelZodSchema = zod_1.default.object({
     type: zod_1.default.string().min(1, "Parcel type required"),
     weight: zod_1.default.number().positive("Weight must be positive"),
     address: zod_1.default.string().min(10, "Address must be at least 10 chars"),
+    fee: zod_1.default.number().optional(),
     deliveryDate: zod_1.default.string().optional()
 });
 exports.updateParcelStatusZodSchema = zod_1.default.object({
