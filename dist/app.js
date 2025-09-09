@@ -24,8 +24,8 @@ app.use(passport_1.default.session());
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
-    origin: ["http://localhost:3000", "http://localhost:5173", "https://parcel-delivery-frontend-nine.vercel.app", "https://parcel-delivery-api-sigma.vercel.app"],
-    methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
+    origin: ["http://localhost:3000", "https://parcel-delivery-frontend-nine.vercel.app"],
+    // methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
     credentials: true,
 }));
 app.use("/api/v1", routes_1.router);
