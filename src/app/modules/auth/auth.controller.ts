@@ -57,27 +57,53 @@ const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: N
         data: tokenInfo,
     })
 })
+const logout = catchAsync(async (req: Request, res: Response) => {
+  const isProd = process.env.NODE_ENV === "production";
 
-const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: "none",
+    domain: "parcel-delivery-api-sigma.vercel.app", // ✅ must match setAuthCookie
+    path: "/",
+  });
 
-      res.clearCookie("accessToken", {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax"
-    })
-    res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax"
-    })
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: "none",
+    domain: "parcel-delivery-api-sigma.vercel.app",
+    path: "/",
+  });
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: "User Logged Out Successfully",
-        data: null,
-    })
-})
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User Logged Out Successfully",
+    data: null,
+  });
+});
+
+// const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+//       res.clearCookie("accessToken", {
+//         httpOnly: true,
+//         secure: true,
+//         sameSite: "none"
+//     })
+//     res.clearCookie("refreshToken", {
+//         httpOnly: true,
+//         secure: true,
+//         sameSite: "none"
+//     })
+
+//     sendResponse(res, {
+//         success: true,
+//         statusCode: httpStatus.OK,
+//         message: "User Logged Out Successfully",
+//         data: null,
+//     })
+// })
 
 const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const newPassword = req.body.newPassword;
